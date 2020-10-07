@@ -119,7 +119,7 @@ export function serve(config: Config) {
       notify();
     };
 
-    app.get(`${baseUrl}/hooks/:name/:secret`, (req, res) => {
+    app.all(`${baseUrl}/hooks/:name/:secret`, (req, res) => {
       const { name, secret } =  req.params;
       const { trigger, force } = req.query;
       const hook = hooks.find((e) => {
