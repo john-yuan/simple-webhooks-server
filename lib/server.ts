@@ -1,5 +1,6 @@
 import moment from 'moment';
 import express from 'express';
+import path from 'path';
 import { toString, isNil } from 'lodash/fp';
 import { exec } from 'child_process';
 
@@ -18,6 +19,8 @@ interface Config {
   maxHistoryCount?: number;
   contextPath?: string;
   publicHostName?: string;
+  enableTaskStatusPage?: boolean;
+  logHooksToConsole?: boolean;
 }
 
 interface Task {
@@ -46,9 +49,15 @@ export function serve(config: Config) {
       maxHistoryCount = 200,
       contextPath,
       publicHostName,
+      enableTaskStatusPage,
+      logHooksToConsole,
     } = config;
 
     const app = express();
+
+    app.set('views', path.resolve(__dirname, '../views'));
+    app.set('view engine', 'ejs');
+
     const waitingTasks: Task[] = [];
     const finishedTasks: Task[] = [];
     const baseUrl = isNil(contextPath) ? '' : toString(contextPath);
@@ -66,8 +75,8 @@ export function serve(config: Config) {
       if (isNil(reuseResultOf)) {
         exec(command, (error, stdout, stderr) => {
           task.finishedAt = now();
-          task.stdout = stdout;
-          task.stderr = stderr;
+          task.stdout = toString(stdout);
+          task.stderr = toString(stderr);
           task.error = error
             ? { code: error.code, signal: error.signal }
             : undefined;
@@ -91,8 +100,21 @@ export function serve(config: Config) {
               if (finishedTasks.length > maxHistoryCount) {
                 finishedTasks.shift();
               }
-              console.log(task);
               console.log();
+              console.log('          Id: ' + task.buildId);
+              console.log('        Name: ' + task.hook.name);
+              console.log('     Command: ' + task.hook.command);
+              console.log('       Force: ' + (!!task.force));
+              console.log('     Trigger: ' + (task.trigger || null));
+              console.log('   Same with: ' + (task.reuseResultOf || null));
+              console.log('  Created At: ' + task.createdAt);
+              console.log('  Started At: ' + task.startedAt);
+              console.log(' Finished At: ' + task.finishedAt);
+              console.log('       Error: ' + (task.error ? task.error.code : null));
+              console.log('      Stdout: ');
+              task.stdout && console.log(toString(task.stdout).trim());
+              console.log('      Stderr: ');
+              task.stderr && console.log(toString(task.stderr).trim());
             }
             buildingTask = undefined;
             notify();
@@ -126,6 +148,8 @@ export function serve(config: Config) {
         return e.name === name && e.secret === secret;
       });
 
+      res.end();
+
       if (hook) {
         const { postOnly } = hook;
         const method = toString(req.method).toUpperCase();
@@ -150,26 +174,44 @@ export function serve(config: Config) {
           console.log();
         }
       }
-
-      // Always returns 200 to prevent attack
-      res.status(200).send('ok');
     });
 
+    if (enableTaskStatusPage) {
+      app.get(`${baseUrl}/task_status`, (req, res) => {
+        const waiting = [...waitingTasks];
+        const finished = [...finishedTasks];
+        const tasks = [...waiting.reverse()];
+        if (buildingTask) {
+          tasks.push(buildingTask);
+        }
+        res.render('task_status', {
+          baseUrl,
+          moment,
+          tasks: [...tasks, ...finished.reverse()]
+        });
+      });
+
+      app.use(`${baseUrl}/static`,
+        express.static(path.resolve(__dirname, '../static')));
+    }
+
     app.listen(port, host, () => {
-      console.log();
 
       const address = toString(host).trim() === '0.0.0.0'
         ? `http://localhost:${port}`
         : `http://${host}:${port}`;
 
-      if (hooks.length) {
-        console.log('Hooks:');
-        const hostName = publicHostName ? publicHostName : address;
-        hooks.forEach(({ name, secret }) => {
-          console.log(` - ${hostName}${baseUrl}/hooks/${name}/${secret}`);
-        });
-      } else {
-        console.log('No hooks');
+      if (logHooksToConsole) {
+        console.log();
+        if (hooks.length) {
+          console.log('Hooks:');
+          const hostName = publicHostName ? publicHostName : address;
+          hooks.forEach(({ name, secret }) => {
+            console.log(` - ${hostName}${baseUrl}/hooks/${name}/${secret}`);
+          });
+        } else {
+          console.log('No hooks');
+        }
       }
 
       console.log();

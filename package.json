@@ -1,11 +1,13 @@
 {
   "name": "simple-webhooks-server",
-  "version": "0.0.2-alpha",
+  "version": "0.0.3-alpha",
   "description": "A simple webhooks server to execute command when a url is requested.",
   "main": "dist/server.js",
   "types": "dist/server.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "views",
+    "static"
   ],
   "scripts": {
     "dev": "tsc && node ./dev/example.js",
@@ -26,6 +28,7 @@
   },
   "homepage": "https://github.com/john-yuan/simple-webhooks-server#readme",
   "dependencies": {
+    "ejs": "^3.1.5",
     "express": "^4.17.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.1"

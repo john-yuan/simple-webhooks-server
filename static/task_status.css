@@ -1,0 +1,164 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  color: #343a40;
+}
+
+.task-container {
+  width: 960px;
+  margin: 16px auto;
+}
+
+@media (max-width: 960px) {
+  .task-container {
+    width: auto;
+    margin: 8px;
+  }
+}
+
+.task-container ul,
+.task-container li {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-container ul li.task-item {
+  display: flex;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.task-item {
+  border: 1px solid #eee;
+  border-bottom: 0;
+  background-color: #fff;
+  overflow-x: auto;
+}
+
+.task-item:last-child {
+  border-bottom: 1px solid #eee;
+}
+
+.task-item:hover {
+  background-color: #fafafa;
+}
+
+@keyframes targetFadeOut {
+  from {
+    background-color: antiquewhite;
+  }
+  to {
+    background-color: #fff;
+  }
+}
+
+.task-item:target {
+  animation: targetFadeOut 5s ease-in-out;
+}
+
+.task-item>div {
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.stretch {
+  flex-grow: 1;
+  padding: 0;
+}
+
+.task-item {
+  line-height: 42px;
+}
+
+.task-id {
+  font-size: 13px;
+  min-width: 2em;
+  text-align: left;
+  color: #000;
+}
+
+.task-name {
+  color: #303030;
+}
+
+.task-result-share,
+.task-result-success,
+.task-result-error,
+.task-status-building,
+.task-status-waiting,
+.task-time-used,
+.task-trigger {
+  text-decoration: none;
+  padding: 4px 6px;
+  font-size: 13px;
+  border-radius: 4px;
+  color: #343a40;
+  background-color: #eee;
+  cursor: default;
+}
+
+.task-result-share {
+  color: #343a40;
+  cursor: pointer;
+  background-color: burlywood;
+}
+
+.task-result-share:hover {
+  color: #fff;
+  background-color: #4b646e;
+}
+
+.task-result-success {
+  color: #fff;
+  background-color: #28a745;
+}
+
+.task-result-error {
+  color: #fff;
+  background-color: #dc3545;
+}
+
+.task-status-building,
+.task-status-waiting {
+  color: #343a40;
+  background-color: #ffc107;
+}
+
+.task-created-at {
+  font-size: 13px;
+  letter-spacing: 0px;
+}
+
+.heading {
+  margin-bottom: 0;
+}
+
+.updated-at {
+  overflow: auto;
+  line-height: 29px;
+}
+
+.text-updated-at {
+  color: #828282;
+  font-size: 14px;
+}
+
+.btn-refresh {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+  box-shadow: none;
+  border-style: solid;
+  outline: none;
+  border-radius: 3px;
+  float: right;
+  padding: 5px 6px;
+  cursor: pointer;
+}
+
+.btn-refresh:hover {
+  background-color: #005aee;
+  border-color: #005aee;
+}

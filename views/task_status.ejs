@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task status - Simple Webhooks Server</title>
+  <link rel="stylesheet" href="<%= baseUrl %>/static/task_status.css">
+</head>
+<%
+  function getTaskStatus(task) {
+    if (task.finishedAt) {
+      return 'FINISHED';
+    }
+    if (task.startedAt) {
+      return 'BUILDING';
+    }
+    return 'WAITING';
+  }
+
+  function getResult(task) {
+    if (task.reuseResultOf) {
+      return {
+        type: 'share',
+        text: 'SAME WITH #' + task.reuseResultOf,
+        shareId: '#task-' + task.reuseResultOf
+      };
+    }
+    if (task.error) {
+      return {
+        type: 'error',
+        text: 'FAILED'
+      };
+    }
+    return {
+      type: 'success',
+      text: 'SUCCESS'
+    };
+  }
+-%>
+<body>
+  <div class="task-container">
+    <h1 class="heading">Task status</h1>
+    <p class="updated-at">
+      <span class="text-updated-at">Updated at <%= moment().format('yyyy-MM-DD hh:mm:ss') %>.</span>
+      <button type="button" class="btn-refresh">Refresh</button>
+    </p>
+    <%_ if (tasks.length === 0) { -%>
+      <p>No task.</p>
+    <%_ } -%>
+    <ul class="task-list">
+      <%_ tasks.forEach((task) => { -%>
+        <%_
+          var status = getTaskStatus(task);
+          var result = getResult(task);
+        -%>
+        <li id="task-<%= task.buildId %>" class="task-item">
+          <div class="task-id">#<%= task.buildId %></div>
+          <div class="task-name"><%= task.hook.name %></div>
+          <div class="stretch"></div>
+          <%_ if (task.trigger) { -%>
+            <div>
+              <span class="task-trigger" title="Trigger"><%= task.trigger %></span>
+            </div>
+          <%_ } -%>
+          <%_ if (task.finishedAt) { -%>
+            <div>
+              <span class="task-time-used" title="Build time used">
+                <%=
+                  ((moment(task.finishedAt).toDate().getTime()
+                    - moment(task.startedAt).toDate().getTime()) / 1000).toFixed(0)
+                %>s
+              </span>
+            </div>
+          <%_ } -%>
+          <%_ if (result.type === 'share') { -%>
+            <div class="task-result">
+              <a class="task-result-share" href="<%= result.shareId %>"><%= result.text %></a>
+            </div>
+          <%_ } else if (status === 'FINISHED') { -%>
+            <div class="task-result">
+              <span class="task-result-<%= result.type %>"><%= result.text %></span>
+            </div>
+          <%_ } else { -%>
+            <div class="task-status">
+              <span class="task-status-<%= status.toLowerCase() %>"><%= status %></span>
+            </div>
+          <%_ } -%>
+          <div class="task-created-at">
+            <%= moment(task.createdAt).format('yyyy-MM-DD hh:mm:ss') %>
+          </div>
+        </li>
+      <%_ }); -%>
+    </ul>
+  </div>
+  <script>
+    (function () {
+      document.querySelector('.btn-refresh').addEventListener('click', function () {
+        location.hash = '';
+        location.reload();
+      }, false);
+
+      function updateAnchor(anchor) {
+        history.replaceState(null, null, location.href.replace(/#.*$/, anchor));
+      }
+
+      document.querySelector('.task-list').addEventListener('click', function (e) {
+        var target = e.target;
+        var nodeName = target.nodeName.toUpperCase();
+
+        if (nodeName === 'LI') {
+          updateAnchor('#' + target.getAttribute('id'));
+        } else if (nodeName !== 'A' && nodeName !== 'LI') {
+          var node = target;
+          while (node) {
+            node = node.parentNode;
+            if (node.nodeName.toUpperCase() === 'LI') {
+              break;
+            }
+          }
+          if (node) {
+            updateAnchor('#' + node.getAttribute('id'));
+          }
+        }
+      }, false);
+    })();
+  </script>
+</body>
+</html>

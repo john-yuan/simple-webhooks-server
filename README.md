@@ -10,6 +10,8 @@ import { serve } from 'simple-webhooks-server';
 serve({
   port: 4003,
   contextPath: '/example',
+  logHooksToConsole: true,
+  enableTaskStatusPage: true,
   hooks: [
     // (GET or POST) http://localhost:4003/example/hooks/hello/hello-secret
     {
