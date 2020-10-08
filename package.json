@@ -1,6 +1,6 @@
 {
   "name": "simple-webhooks-server",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4",
   "description": "A simple webhooks server to execute command when a url is requested.",
   "main": "dist/server.js",
   "types": "dist/server.d.ts",

@@ -216,7 +216,7 @@ export function serve(config: Config) {
 
       console.log();
       console.log('Address:');
-      console.log(` - ${address}`)
+      console.log(` - ${address}${baseUrl}${enableTaskStatusPage ? '/task_status' : ''}`)
       console.log();
 
       resolve();

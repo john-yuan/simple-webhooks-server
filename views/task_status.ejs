@@ -41,7 +41,7 @@
   <div class="task-container">
     <h1 class="heading">Task status</h1>
     <p class="updated-at">
-      <span class="text-updated-at">Updated at <%= moment().format('yyyy-MM-DD hh:mm:ss') %>.</span>
+      <span class="text-updated-at">Updated at <%= moment().format('yyyy-MM-DD HH:mm:ss') %>.</span>
       <button type="button" class="btn-refresh">Refresh</button>
     </p>
     <%_ if (tasks.length === 0) { -%>
@@ -86,7 +86,7 @@
             </div>
           <%_ } -%>
           <div class="task-created-at">
-            <%= moment(task.createdAt).format('yyyy-MM-DD hh:mm:ss') %>
+            <%= moment(task.createdAt).format('yyyy-MM-DD HH:mm:ss') %>
           </div>
         </li>
       <%_ }); -%>
